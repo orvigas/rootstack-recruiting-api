@@ -1,0 +1,5 @@
+docker pull node:alpine
+
+docker build -t orvigas/rootstack-recruiting-api:1.0 .
+
+docker run -p 8081:3000 --network local-dev --name rootstack-recruiting-api -d orvigas/rootstack-recruiting-api:1.0

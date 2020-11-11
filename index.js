@@ -1,27 +1,26 @@
-'use strict';
+/*IMPORTS*/
+const Koa = require('koa');
+const cors = require('@koa/cors');
+const bodyParser = require('koa-bodyparser');
+const errorHandler = require('./middleware/errorHandler');
 
-const http = require('http');
-const server = require('./server');
+/*ROUTES*/
+const auth = require('./routes/auth.route');
+const jobs = require('./routes/job.route');
 
-const { port } = require('./config').server;
+/*APP INIT*/
+const app = new Koa();
 
-async function bootstrap() {
-  /**
-   * Add external services init as async operations (db, redis, etc...)
-   * e.g.
-   * await sequelize.authenticate()
-   */
-  return http.createServer(server.callback()).listen(port);
-}
+app.use(errorHandler);
+app.use(bodyParser());
+app.use(cors());
 
-bootstrap()
-  .then(server =>
-    console.log(`🚀 Server listening on port ${server.address().port}!`),
-  )
-  .catch(err => {
-    setImmediate(() => {
-      console.error('Unable to run the server because of the following error:');
-      console.error(err);
-      process.exit();
-    });
-  });
+/*ROUTING*/
+
+app.use(auth.routes());
+app.use(auth.allowedMethods());
+
+app.use(jobs.routes());
+app.use(jobs.allowedMethods());
+
+app.listen(process.env.PORT || 3000);
